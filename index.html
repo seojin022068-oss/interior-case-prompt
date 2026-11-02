@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=Oswald:wght@300;400&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#f9eef2; --ink:#2a2a2a; --mute:#7d7a74; --light:#2a2a2a; --paper:#fdf9fa; --card:#fbf4f6;
+    --bg:#f4f0f3; --ink:#2a2a2a; --mute:#7d7a74; --light:#2a2a2a; --paper:#fcfafb; --card:#f9f5f7;
     --pw:300px; --ph:424px; /* set by JS */
     --ease:cubic-bezier(.65,.05,.36,1);
   }
@@ -374,10 +374,10 @@ const AUTHOR_BIO = {
   text: '숭실대학교 건축학부 실내건축전공 교수. 연세대학교 이학박사로, 재직 중 미국 조지아대학교(UGA) 방문연구자를 지냈다. 뉴욕과 서울에서의 실무 실적을 바탕으로 교육 공간 혁신에 기여해 문화체육관광부 장관 표창을 받았다. 신경건축학 연구분야의 전문가로서 뇌파, 시선 추적 등 신경과학 데이터를 활용한 사용자 심리 분석과 융합 데이터 기반의 설계 가이드라인 구축에 집중하고 있다. 최근에는 증강현실 및 가상현실 환경에서의 인지 심리 변화를 연구하며 인공지능 시대의 미래 지향적 공간 디자인을 제안하고 있다.',
   lab: '숭실대학교 일반대학원 뉴로디자인 연구실 · Neuro Design Lab | ndlab.space'
 };
-let tint = [238,188,212], barsReady = false;   // 배경이 물드는 색 (장 색을 옅게)
+let tint = [234,196,214], barsReady = false;   // 배경이 물드는 색 (장 색을 옅게)
 const hex2rgb = h => [1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
 const PINK = [242,176,206];   // 배경에 늘 섞이는 분홍
-const pastel = (hex, k=.45) => hex2rgb(hex).map((c,i) => (c + (255-c)*k)*.6 + PINK[i]*.4);
+const pastel = (hex, k=.45) => hex2rgb(hex).map((c,i) => (c + (255-c)*k)*.68 + PINK[i]*.32);   // 분홍 비중 40% → 32% (20% 줄임)
 
 /* ===== 목차 설정 =====
    page: 열람본 PDF의 몇 번째 쪽에서 시작하는지 (없으면 '열람본 미수록'으로 표시)
@@ -746,8 +746,8 @@ function currentItem(c){ let f = null; all.forEach(it=>{ if (it.page && spreadOf
   const hole = document.createElement('canvas'), hctx = hole.getContext('2d');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const S = 5;
-  const BASE = [250,234,241];
-  const COVER_C = [[244,182,210],[226,196,232],[250,198,196]];   // 분홍·라벤더·살구 (분홍 위주)
+  const BASE = [244,240,244];
+  const COVER_C = [[240,190,212],[182,212,234],[212,214,224]];   // 분홍·하늘·회색이 섞이는 그라데이션
   let W, H, blobs = [], cur = tint.slice();
   let seed = 4; const r = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   function size(){
