@@ -36,6 +36,16 @@
   .insta{font-size:12px;letter-spacing:.04em;
     color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:7px;opacity:.75;transition:opacity .2s}
   .insta:hover{opacity:1}
+  /* 다른 책으로 가는 링크 */
+  .sister{display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:7px 14px 7px 15px;border-radius:20px;
+    background:rgba(255,255,255,.55);box-shadow:0 0 0 1px rgba(60,40,60,.06);color:var(--ink);text-decoration:none;
+    font-size:12px;letter-spacing:.03em;transition:background .25s, transform .3s var(--ease)}
+  .sister:hover{background:rgba(255,255,255,.85);transform:translateX(-3px)}
+  .sister small{font-size:10px;color:var(--mute);letter-spacing:.05em}
+  .sister span{transition:transform .3s var(--ease)} .sister:hover span{transform:translateX(3px)}
+  body.short .sister{margin-bottom:3px;padding:4px 10px;font-size:10px} body.short .sister small{display:none}
+  body.short:not(.indexing) .contact{display:flex} body.short:not(.indexing) .contact .org{display:none}
+  body:not(.indexing) .sister{opacity:.75}
   .insta svg{width:15px;height:15px}
   #toIndex{font-size:12px;letter-spacing:.06em;color:var(--mute);padding:6px 0;transition:color .2s,opacity .5s}
   #toIndex:hover{color:var(--light)}
@@ -271,7 +281,6 @@
   body.short .contact{right:14px;bottom:6px;gap:1px}
   body.short .contact .org{font-size:8.5px}
   body.short .insta{font-size:9.5px} body.short .insta svg{width:11px;height:11px}
-  body.short:not(.indexing) .contact{display:none}
   body.short .insta{display:none !important}   /* 휴대폰: 메일 주소 숨김 */
   body.short footer{padding:6px;gap:14px}
   body.short footer button{width:28px;height:28px;font-size:16px}
@@ -314,7 +323,7 @@
   <span><button id="toIndex">← 목차</button></span>
   <span class="au"></span>
 </header>
-<div class="contact"><div class="org">Soongsil University · Interior Architecture</div><a class="insta" id="insta" hidden></a></div>
+<div class="contact"><a class="sister" href="https://seojin022068-oss.github.io/-/"><small>다른 책</small>디자인과 재료 × 프롬프트 <span>→</span></a><div class="org">Soongsil University · Interior Architecture</div><a class="insta" id="insta" hidden></a></div>
 
 <!-- ===== 목차 화면 ===== -->
 <section class="index">
