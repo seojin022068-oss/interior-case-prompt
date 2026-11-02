@@ -41,6 +41,7 @@
   .sister{display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:7px 14px 7px 15px;border-radius:20px;
     background:rgba(255,255,255,.55);box-shadow:0 0 0 1px rgba(60,40,60,.06);color:var(--ink);text-decoration:none;
     font-size:12px;letter-spacing:.03em;transition:background .25s, transform .3s var(--ease)}
+  .sister.home:hover{transform:translateX(3px)} .sister.home:hover span{transform:translateX(-3px)}
   .sister:hover{background:rgba(255,255,255,.85);transform:translateX(-3px)}
   .sister small{font-size:10px;color:var(--mute);letter-spacing:.05em}
   .sister span{transition:transform .3s var(--ease)} .sister:hover span{transform:translateX(3px)}
@@ -327,7 +328,7 @@
   <span><button id="toIndex">← 목차</button></span>
   <span class="au"></span>
 </header>
-<div class="contact"><a class="sister tohome" href="https://xprompt-three.vercel.app/"><small>처음 화면</small>X PROMPT <span>↩</span></a><a class="sister" href="https://boo-three-beta.vercel.app/"><small>다른 책</small>디자인과 재료 × 프롬프트 <span>→</span></a><div class="org">Soongsil University · Interior Architecture</div><a class="insta" id="insta" hidden></a></div>
+<div class="contact"><a class="sister home" id="homeBtn" href="https://xprompt-three.vercel.app/"><span>←</span><small>처음 화면</small>X PROMPT</a><a class="sister" href="https://boo-three-beta.vercel.app/"><small>다른 책</small>디자인과 재료 × 프롬프트 <span>→</span></a><div class="org">Soongsil University · Interior Architecture</div><a class="insta" id="insta" hidden></a></div>
 
 <!-- ===== 목차 화면 ===== -->
 <section class="index">
@@ -866,6 +867,11 @@ function currentItem(c){ let f = null; all.forEach(it=>{ if (it.page && spreadOf
     home: { url: 'https://xprompt-three.vercel.app/', colors: [[239,189,214],[189,206,239],[189,239,235]], base: [255,255,255], title: 'X PROMPT' }
   };
   let DEST, COLORS, BASE;
+  const homeURL = () => {
+    try { const r = document.referrer && new URL(document.referrer);
+      if (r && /x-?prompt/i.test(r.host)) return r.origin + '/'; } catch(_){}
+    return TARGETS.home.url;
+  };
   const cv = document.getElementById('bookWash'), ctx = cv.getContext('2d'), tt = document.getElementById('bookWashT');
   const ease = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
   let busy = false, gen = 0, startedAt = 0;   // gen: 뒤로 가기로 돌아오면 남은 애니메이션을 멈춤
@@ -905,7 +911,8 @@ function currentItem(c){ let f = null; all.forEach(it=>{ if (it.page && spreadOf
     const a = e.target.closest && e.target.closest('a.sister, a#homeLink');
     if (!a || e.metaKey || e.ctrlKey || e.shiftKey) return;
     e.preventDefault();
-    go(e.clientX, e.clientY, a.classList.contains('tohome') || a.id === 'homeLink' ? TARGETS.home : TARGETS.book);
+    const isHome = a.classList.contains('home') || a.classList.contains('tohome') || a.id === 'homeLink';
+    go(e.clientX, e.clientY, isHome ? { ...TARGETS.home, url: homeURL() } : TARGETS.book);
   }, true);
   // 뒤로 가기로 돌아오면: 덮어 둔 색과 제목을 걷어 내고 원래 화면으로
   function reset(){
