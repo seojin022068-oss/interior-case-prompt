@@ -289,7 +289,8 @@
 
   /* 휴대폰을 세로로 들고 있을 때: 화면 전체를 90° 돌려 가로 화면으로 보여줌 */
   #app{position:fixed;left:0;top:0;width:var(--aw,100vw);height:var(--ah,100vh);overflow:hidden}
-  body.rot #app{transform-origin:0 0;transform:translateX(var(--sw)) rotate(90deg)}
+  #app{transform-origin:0 0;transform:scale(var(--sc,1))}
+  body.rot #app{transform-origin:0 0;transform:translateX(var(--sw)) rotate(90deg) scale(var(--sc,1))}
   .rot-hint{position:fixed;left:50%;top:50%;margin-top:-16px;transform:translateX(-50%);z-index:50;font-size:11px;letter-spacing:.04em;
     color:var(--ink);background:rgba(255,255,255,.7);padding:7px 14px;border-radius:20px;pointer-events:none;
     transition:opacity .8s;opacity:0;white-space:nowrap}
@@ -349,13 +350,20 @@
 /* ===== 화면 방향 =====
    휴대폰을 세로로 들고 있으면 #app 을 90° 돌려 항상 가로 화면으로 보여줌 */
 let ROT = false;
-const appW = () => ROT ? innerHeight : innerWidth;
-const appH = () => ROT ? innerWidth : innerHeight;
-const toApp = (x,y) => ROT ? [y, innerWidth - x] : [x, y];   // 화면 좌표 → 돌린 화면 안의 좌표
+/* 휴대폰을 가로로 들면 브라우저 바 때문에 높이가 너무 낮아져 화면이 뭉개짐
+   → 세로로 들었을 때와 같은 높이(APP_MIN_H)로 그린 뒤 통째로 줄여서 보여줌 */
+const APP_MIN_H = 390;
+let SC = 1;
+const appW = () => (ROT ? innerHeight : innerWidth) / SC;
+const appH = () => (ROT ? innerWidth : innerHeight) / SC;
+const toApp = (x,y) => ROT ? [y / SC, (innerWidth - x) / SC] : [x / SC, y / SC];   // 화면 좌표 → 돌린(줄인) 화면 안의 좌표
 function orient(){
   const coarse = matchMedia('(pointer:coarse)').matches;
   ROT = coarse && innerHeight > innerWidth && Math.min(innerWidth, innerHeight) < 600;
+  const rawH = ROT ? innerWidth : innerHeight;
+  SC = coarse && rawH < APP_MIN_H ? rawH / APP_MIN_H : 1;
   const b = document.body, r = document.documentElement.style;
+  r.setProperty('--sc', SC);
   b.classList.toggle('rot', ROT);
   r.setProperty('--sw', innerWidth+'px');
   r.setProperty('--aw', appW()+'px'); r.setProperty('--ah', appH()+'px');
