@@ -37,6 +37,7 @@
     color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:7px;opacity:.75;transition:opacity .2s}
   .insta:hover{opacity:1}
   /* 다른 책으로 가는 링크 */
+  header a.ttl{color:inherit;text-decoration:none;pointer-events:auto;transition:opacity .2s} header a.ttl:hover{opacity:.6}
   .sister{display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:7px 14px 7px 15px;border-radius:20px;
     background:rgba(255,255,255,.55);box-shadow:0 0 0 1px rgba(60,40,60,.06);color:var(--ink);text-decoration:none;
     font-size:12px;letter-spacing:.03em;transition:background .25s, transform .3s var(--ease)}
@@ -318,7 +319,7 @@
 <div id="cur" aria-hidden="true"><div class="halo"></div><div class="dot"></div></div>
 <header>
   <div class="meta">
-    <div class="ttl"><b>실내건축사례분석 X 프롬프트</b><span>Interior Architecture Case Study Prompt</span></div>
+    <a class="ttl" id="homeLink" href="https://xprompt-three.vercel.app/" title="X PROMPT 처음 화면으로"><b>실내건축사례분석 X 프롬프트</b><span>Interior Architecture Case Study Prompt</span></a>
     <div class="more">
       <div class="by"><span>지은이</span><span>Written by</span><span>김주연</span><span>Ju Yeon Kim</span></div>
     </div>
@@ -326,7 +327,7 @@
   <span><button id="toIndex">← 목차</button></span>
   <span class="au"></span>
 </header>
-<div class="contact"><a class="sister" href="https://boo-three-beta.vercel.app/"><small>다른 책</small>디자인과 재료 × 프롬프트 <span>→</span></a><div class="org">Soongsil University · Interior Architecture</div><a class="insta" id="insta" hidden></a></div>
+<div class="contact"><a class="sister tohome" href="https://xprompt-three.vercel.app/"><small>처음 화면</small>X PROMPT <span>↩</span></a><a class="sister" href="https://boo-three-beta.vercel.app/"><small>다른 책</small>디자인과 재료 × 프롬프트 <span>→</span></a><div class="org">Soongsil University · Interior Architecture</div><a class="insta" id="insta" hidden></a></div>
 
 <!-- ===== 목차 화면 ===== -->
 <section class="index">
@@ -555,6 +556,8 @@ zFix(); render();
 const wait = ms => new Promise(r=>setTimeout(r,ms));
 async function openTo(target, endSide='L'){
   busy = true; side = 'R';
+  // 책을 펼치면 기록을 하나 남겨, 휴대폰·브라우저 뒤로 가기가 사이트를 떠나지 않고 목차로 돌아오게
+  if (!(history.state && history.state.reading)) history.pushState({reading: 1}, '');
   loadAround(0); loadAround(target);
   document.body.classList.remove('indexing');
   await wait(350);
@@ -580,6 +583,15 @@ async function openTo(target, endSide='L'){
   busy = false; side = endSide; render();
 }
 function showIndex(){
+  // 펼칠 때 남긴 기록이 있으면 그걸 되돌려서(뒤로 가기와 같은 길로) 목차로
+  if (history.state && history.state.reading) { history.back(); return; }
+  showIndexNow();
+}
+addEventListener('popstate', () => {
+  if (document.body.classList.contains('indexing')) return;
+  (function wait(){ if (busy) return setTimeout(wait, 150); showIndexNow(); })();
+});
+function showIndexNow(){
   if (busy) return;
   document.body.classList.add('indexing');
   setTimeout(resetBook, 600);
@@ -841,19 +853,26 @@ function currentItem(c){ let f = null; all.forEach(it=>{ if (it.page && spreadOf
 </script>
 <!-- book-switch-transition -->
 <script type="speculationrules">
-{"prerender":[{"urls":["https://boo-three-beta.vercel.app/"],"eagerness":"moderate"}],"prefetch":[{"urls":["https://boo-three-beta.vercel.app/"],"eagerness":"immediate"}]}
+{"prerender":[{"urls":["https://xprompt-three.vercel.app/","https://boo-three-beta.vercel.app/"],"eagerness":"moderate"}],"prefetch":[{"urls":["https://xprompt-three.vercel.app/","https://boo-three-beta.vercel.app/"],"eagerness":"immediate"}]}
 </script>
 <canvas id="bookWash" aria-hidden="true" style="position:fixed;inset:0;width:100%;height:100%;z-index:990;pointer-events:none;filter:blur(30px);transform:scale(1.25);display:none"></canvas>
 <div id="bookWashT" aria-hidden="true" style="position:fixed;left:50%;top:50%;z-index:991;transform:translate(-50%,-50%) translateY(10px);font-weight:500;font-size:clamp(20px,3.2vw,42px);color:#fff;white-space:nowrap;opacity:0;pointer-events:none;text-shadow:0 2px 24px rgba(50,60,90,.22);transition:opacity .7s ease .45s, transform 1s cubic-bezier(.65,.05,.36,1) .45s">디자인과 재료 X 프롬프트</div>
 <script>
 /* ── 다른 책으로 넘어갈 때: 그 책의 색이 번졌다가 그 책의 첫 바탕색으로 가라앉은 뒤 이동 ── */
 (function(){
-  const DEST = 'https://boo-three-beta.vercel.app/', COLORS = [[186,190,232],[168,214,226],[240,196,176]], BASE = [247,246,243];
+  // 다른 책으로 / X PROMPT 처음 화면으로 — 가는 곳의 색과 첫 바탕색
+  const TARGETS = {
+    book: { url: 'https://boo-three-beta.vercel.app/', colors: [[186,190,232],[168,214,226],[240,196,176]], base: [247,246,243], title: '디자인과 재료 X 프롬프트' },
+    home: { url: 'https://xprompt-three.vercel.app/', colors: [[239,189,214],[189,206,239],[189,239,235]], base: [255,255,255], title: 'X PROMPT' }
+  };
+  let DEST, COLORS, BASE;
   const cv = document.getElementById('bookWash'), ctx = cv.getContext('2d'), tt = document.getElementById('bookWashT');
   const ease = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
-  let busy = false;
-  function go(x, y){
-    if (busy) return; busy = true;
+  let busy = false, gen = 0, startedAt = 0;   // gen: 뒤로 가기로 돌아오면 남은 애니메이션을 멈춤
+  function go(x, y, cfg){
+    DEST = cfg.url; COLORS = cfg.colors; BASE = cfg.base; tt.textContent = cfg.title;
+    if (busy) return; busy = true; startedAt = performance.now();
+    const myGen = ++gen;
     const S = 6, W = Math.ceil(innerWidth / S), H = Math.ceil(innerHeight / S);
     cv.width = W; cv.height = H; cv.style.display = 'block';
     const cx = x / S, cy = y / S, maxR = Math.hypot(W, H);
@@ -862,6 +881,7 @@ function currentItem(c){ let f = null; all.forEach(it=>{ if (it.page && spreadOf
     requestAnimationFrame(() => { tt.style.opacity = 1; tt.style.transform = 'translate(-50%,-50%)'; });
     const t0 = performance.now(); let went = false;
     (function step(now){
+      if (myGen !== gen) return;
       const t = (now - t0) / 1000;
       const w = Math.max(0, t / 1.25), settle = ease(Math.min(1, Math.max(0, (t - 1.25) / .65)));
       ctx.clearRect(0, 0, W, H);
@@ -882,13 +902,22 @@ function currentItem(c){ let f = null; all.forEach(it=>{ if (it.page && spreadOf
     })(t0);
   }
   document.addEventListener('click', e => {
-    const a = e.target.closest && e.target.closest('a.sister');
+    const a = e.target.closest && e.target.closest('a.sister, a#homeLink');
     if (!a || e.metaKey || e.ctrlKey || e.shiftKey) return;
-    e.preventDefault(); go(e.clientX, e.clientY);
+    e.preventDefault();
+    go(e.clientX, e.clientY, a.classList.contains('tohome') || a.id === 'homeLink' ? TARGETS.home : TARGETS.book);
   }, true);
-  // 뒤로 가기로 돌아오면 원래대로
-  addEventListener('pageshow', e => { if (!e.persisted) return; busy = false; cv.style.display = 'none';
-    tt.style.cssText += ';opacity:0;transition:none'; document.documentElement.style.background = document.body.style.background = ''; });
+  // 뒤로 가기로 돌아오면: 덮어 둔 색과 제목을 걷어 내고 원래 화면으로
+  function reset(){
+    gen++; busy = false;
+    ctx.clearRect(0, 0, cv.width, cv.height); cv.style.display = 'none';
+    tt.style.transition = 'none'; tt.style.opacity = 0; tt.style.transform = 'translate(-50%,-50%) translateY(10px)';
+    document.documentElement.style.background = document.body.style.background = '';
+  }
+  addEventListener('pageshow', e => { if (e.persisted || busy) reset(); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && busy && performance.now() - startedAt > 4000) reset();
+  });
 })();
 </script>
 </body>
